@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>LBBL 联机邀请</title>
+<style>
+  :root {
+    --bg: #0e1210;
+    --card: #161d19;
+    --card2: #1b241f;
+    --accent: #4caf50;
+    --accent-dark: #388e3c;
+    --text: #e8efe9;
+    --text2: #9aa89d;
+    --radius: 16px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 40px;
+  }
+  /* ---- 顶部品牌区（仿启动器主页大标题） ---- */
+  .brand { text-align: center; margin: 40px 0 6px; }
+  .brand .logo {
+    width: 76px; height: 76px; margin: 0 auto 14px;
+    background: linear-gradient(145deg, #2e7d32, #1b5e20);
+    border-radius: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px; font-weight: 800; color: #fff;
+    box-shadow: 0 8px 24px rgba(76,175,80,.25);
+  }
+  .brand h1 { font-size: 30px; font-weight: 800; letter-spacing: 1px; }
+  .brand .sub { color: var(--text2); font-size: 13px; margin-top: 6px; }
+  .brand .edition { color: var(--text2); font-size: 12px; margin-top: 2px; }
+
+  /* ---- 邀请卡片（仿启动器卡片） ---- */
+  .card {
+    width: 100%; max-width: 400px;
+    background: var(--card);
+    border: 1px solid #24302a;
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    margin-top: 28px;
+    text-align: center;
+  }
+  .card .tag {
+    display: inline-block;
+    color: var(--accent);
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 2px;
+    border: 1px solid rgba(76,175,80,.45);
+    border-radius: 999px;
+    padding: 3px 12px;
+  }
+  .card h2 { font-size: 18px; margin: 14px 0 4px; }
+  .card .desc { color: var(--text2); font-size: 13px; }
+  .code {
+    margin: 16px 0 6px;
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 24px; font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1.5px;
+    word-break: break-all;
+    background: var(--card2);
+    border-radius: 12px;
+    padding: 14px 10px;
+  }
+  .steps { color: var(--text2); font-size: 12px; line-height: 1.9; margin-top: 10px; }
+
+  /* ---- 按钮（仿启动器 MaterialButton 实底绿） ---- */
+  .btn {
+    display: block; width: 100%; max-width: 400px;
+    margin-top: 12px;
+    padding: 15px 0;
+    border: none; border-radius: 12px;
+    background: var(--accent);
+    color: #fff; font-size: 15px; font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(76,175,80,.35);
+    transition: transform .08s ease, background .15s ease;
+  }
+  .btn:active { transform: scale(.97); background: var(--accent-dark); }
+  .btn.ghost {
+    background: transparent;
+    border: 1px solid #2e3d34;
+    color: var(--accent);
+    box-shadow: none;
+  }
+  .btn.ghost:active { background: #141a16; }
+
+  /* ---- 复制成功提示 ---- */
+  #toast {
+    position: fixed; left: 50%; bottom: 60px;
+    transform: translateX(-50%) translateY(20px);
+    background: #223328; color: #9fe6a8;
+    padding: 10px 20px; border-radius: 999px;
+    font-size: 13px; opacity: 0; pointer-events: none;
+    transition: all .25s ease;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .footer { color: #5c6b60; font-size: 11px; margin-top: 26px; text-align: center; }
+</style>
+</head>
+<body>
+
+  <div class="brand">
+    <div class="logo">L</div>
+    <h1>LBBL</h1>
+    <div class="sub">Levi Better Bedrock Launcher</div>
+    <div class="edition">Minecraft Edition</div>
+  </div>
+
+  <div class="card" id="inviteCard">
+    <span class="tag">联机邀请</span>
+    <h2>来我的世界联机！</h2>
+    <div class="desc">复制下面的邀请码，到启动器里加入房间</div>
+    <div class="code" id="code">— — — —</div>
+    <div class="steps">
+      打开 LBBL 启动器<br>
+      底部「联机」→「加入房间」<br>
+      粘贴邀请码即可
+    </div>
+  </div>
+
+  <div class="card" id="noCodeCard" style="display:none">
+    <span class="tag">联机邀请</span>
+    <h2>链接里没有邀请码</h2>
+    <div class="desc">请让朋友重新分享一次邀请链接</div>
+  </div>
+
+  <button class="btn" id="btnCopy" onclick="copyCode()">复制邀请码</button>
+  <button class="btn ghost" onclick="location.href='https://github.com/lss3409/levi-updates/releases/latest'">下载 LBBL 启动器</button>
+
+  <div class="footer">LBBL · 非官方 Minecraft Bedrock 启动器 · 与 Mojang/Microsoft 无关</div>
+  <div id="toast">已复制邀请码 ✓</div>
+
+<script>
+  var code = '';
+  try {
+    var q = new URLSearchParams(location.search);
+    code = (q.get('code') || '').trim();
+  } catch (e) { code = ''; }
+
+  if (code) {
+    document.getElementById('code').textContent = code;
+  } else {
+    document.getElementById('inviteCard').style.display = 'none';
+    document.getElementById('noCodeCard').style.display = 'block';
+    document.getElementById('btnCopy').style.display = 'none';
+  }
+
+  function copyCode() {
+    if (!code) return;
+    var done = function () {
+      var t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(function () { t.classList.remove('show'); }, 2000);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(done).catch(function () { fallback(); });
+    } else { fallback(); }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = code;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      done();
+    }
+  }
+</script>
+</body>
+</html>
